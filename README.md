@@ -2,7 +2,7 @@
 
 Unofficial REST API documentation for [Lightning AI Studios](https://lightning.ai), reverse-engineered from the [`lightning-sdk`](https://pypi.org/project/lightning-sdk/) Python package (v2026.2.6).
 
-**Published documentation:** [https://lightning-ai-rest-api.github.io/lightning-ai-rest-api](https://lightning-ai-rest-api.github.io/lightning-ai-rest-api)
+**Published documentation:** [https://rodriguezst.github.io/lightning-ai-rest-api](https://rodriguezst.github.io/lightning-ai-rest-api)
 
 ---
 
