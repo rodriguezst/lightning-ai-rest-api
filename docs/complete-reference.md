@@ -188,7 +188,7 @@ Environment templates define base Studio configurations (pre-installed packages,
 
 Projects are Teamspaces — the organizational unit that owns Studios, Jobs, and Storage.
 
-> **Note:** There is no `GET /v1/projects` endpoint. To list the teamspaces you belong to, use `GET /v1/memberships?filterByUserId=true`. This returns `V1ListMembershipsResponse` with a `.memberships[]` array; each entry has a `project_id` field. Use that ID with `GET /v1/projects/{id}` to get full project details.
+> **Note:** There is no `GET /v1/projects` endpoint. To list the teamspaces you belong to, use `GET /v1/memberships?filterByUserId=true`. This returns a `.memberships[]` array; each entry has a **`projectId`** field (camelCase). Use that ID with `GET /v1/projects/{id}` to get full project details.
 
 | Method | Path | Description |
 |--------|------|-------------|

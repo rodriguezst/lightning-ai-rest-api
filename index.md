@@ -63,11 +63,11 @@ AUTH=$(echo -n "${USER_ID}:${API_KEY}" | base64)
 # Step 1: List your teamspaces
 # NOTE: There is NO GET /v1/projects — use /v1/memberships instead
 curl -s "https://lightning.ai/v1/memberships?filterByUserId=true" \
-  -H "Authorization: Basic ${AUTH}" | jq '.memberships[] | {name, project_id}'
+  -H "Authorization: Basic ${AUTH}" | jq '.memberships[] | {name, projectId}'
 
 # Step 2: List studios in a teamspace
-# NOTE: userId query param is required
-PROJECT_ID="<project_id from step 1>"
+# NOTE: userId query param is required; response fields are camelCase
+PROJECT_ID="<projectId from step 1>"
 curl -s "https://lightning.ai/v1/projects/${PROJECT_ID}/cloudspaces?userId=${USER_ID}" \
   -H "Authorization: Basic ${AUTH}" | jq '.cloudspaces[] | {id, name}'
 
@@ -163,7 +163,9 @@ When starting or switching a Studio, specify a machine by its **slug**:
 
 ## Response Format
 
-All responses are JSON. Successful responses return the requested resource or a response object. Errors follow this format:
+All responses are JSON with **camelCase field names** (e.g. `projectId`, `displayName`, `createdAt`). Use the exact camelCase names when parsing responses — snake_case variants (`project_id`, `display_name`) will be `null`.
+
+Successful responses return the requested resource or a response object. Errors follow this format:
 
 ```json
 {

@@ -21,11 +21,11 @@ AUTH=$(echo -n "${LIGHTNING_USER_ID}:${LIGHTNING_API_KEY}" | base64)
 
 # Step 1: List your memberships to get teamspace (project) IDs
 curl -s -H "Authorization: Basic ${AUTH}" \
-  "https://lightning.ai/v1/memberships?filterByUserId=true" | jq '.memberships[] | {name, project_id}'
+  "https://lightning.ai/v1/memberships?filterByUserId=true" | jq '.memberships[] | {name, projectId}'
 
-# Step 2: Extract the first project ID
+# Step 2: Extract the first project ID (field is camelCase: projectId)
 PROJECT_ID=$(curl -s -H "Authorization: Basic ${AUTH}" \
-  "https://lightning.ai/v1/memberships?filterByUserId=true" | jq -r '.memberships[0].project_id')
+  "https://lightning.ai/v1/memberships?filterByUserId=true" | jq -r '.memberships[0].projectId')
 ```
 
 ---
@@ -62,19 +62,21 @@ Returns all Studios in a project.
     {
       "id": "01abcdef-0000-0000-0000-000000000001",
       "name": "my-studio",
-      "display_name": "My Studio",
-      "cluster_id": "lightning-cloud",
-      "code_status": {
-        "in_use": {
+      "displayName": "My Studio",
+      "clusterId": "lightning-cloud",
+      "codeStatus": {
+        "inUse": {
           "phase": "CLOUD_SPACE_INSTANCE_STATE_RUNNING",
-          "cloud_space_instance_id": "instance-id"
+          "cloudSpaceInstanceId": "instance-id"
         }
       },
-      "created_at": "2024-01-15T10:00:00Z"
+      "createdAt": "2024-01-15T10:00:00Z"
     }
   ]
 }
 ```
+
+> **Note:** All response fields use **camelCase** (e.g. `displayName`, `clusterId`, `codeStatus`, `createdAt`).
 
 **Studio status phases:**
 
@@ -723,7 +725,7 @@ def run_command(project_id, studio_id, command):
 
 # Usage
 memberships = list_projects()
-project_id = memberships[0]["project_id"]  # note: field is project_id, not id
+project_id = memberships[0]["projectId"]  # note: response fields are camelCase
 
 studios = list_studios(project_id, USER_ID)
 studio_id = studios[0]["id"]
