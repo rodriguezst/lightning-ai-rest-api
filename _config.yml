@@ -1,0 +1,32 @@
+title: Lightning AI REST API Reference
+description: Unofficial REST API documentation for Lightning AI Studios, extracted from the lightning-sdk Python package
+baseurl: "/lightning-ai-rest-api"
+url: "https://lightning-ai-rest-api.github.io"
+
+theme: minima
+
+markdown: kramdown
+highlighter: rouge
+
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+header_pages:
+  - index.md
+  - docs/authentication.md
+  - docs/studios.md
+  - docs/jobs.md
+  - docs/storage.md
+  - docs/complete-reference.md
+
+plugins:
+  - jekyll-seo-tag
+  - jekyll-feed
+
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
