@@ -64,7 +64,7 @@ Studios (CloudSpaces) are the core resource. `{projectId}` = Teamspace ID, `{id}
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/v1/projects/{projectId}/cloudspaces` | List Studios |
+| `GET` | `/v1/projects/{projectId}/cloudspaces` | List Studios (`?userId={userId}` required) |
 | `POST` | `/v1/projects/{projectId}/cloudspaces` | Create Studio |
 | `GET` | `/v1/projects/{projectId}/cloudspaces/{id}` | Get Studio |
 | `PUT` | `/v1/projects/{projectId}/cloudspaces/{id}` | Update Studio |
@@ -188,14 +188,16 @@ Environment templates define base Studio configurations (pre-installed packages,
 
 Projects are Teamspaces — the organizational unit that owns Studios, Jobs, and Storage.
 
+> **Note:** There is no `GET /v1/projects` endpoint. To list the teamspaces you belong to, use `GET /v1/memberships?filterByUserId=true`. This returns `V1ListMembershipsResponse` with a `.memberships[]` array; each entry has a `project_id` field. Use that ID with `GET /v1/projects/{id}` to get full project details.
+
 | Method | Path | Description |
 |--------|------|-------------|
 | `POST` | `/v1/projects` | Create project |
-| `GET` | `/v1/projects/{id}` | Get project |
+| `GET` | `/v1/projects/{id}` | Get project by ID |
 | `PUT` | `/v1/projects/{id}` | Update project |
 | `DELETE` | `/v1/projects/{id}` | Delete project |
 | `POST` | `/v1/projects/{projectId}` | Update project (POST) |
-| `GET` | `/v1/memberships` | Get my memberships |
+| `GET` | `/v1/memberships` | **List your teamspaces** (use `?filterByUserId=true`) |
 | `PUT` | `/v1/projects/{projectId}/tab-order` | Update tab order |
 | **Memberships** | | |
 | `POST` | `/v1/projects/{projectId}/memberships` | Add member |

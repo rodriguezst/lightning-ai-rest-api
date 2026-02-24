@@ -14,14 +14,18 @@ Studios are interactive cloud development environments in Lightning AI. In the R
 
 ## Prerequisites
 
-You need a `projectId`. Get it by [listing your projects](complete-reference.md#projects-teamspaces):
+You need a `projectId`. There is **no `GET /v1/projects` endpoint** — use `GET /v1/memberships` to discover your teamspaces:
 
 ```bash
 AUTH=$(echo -n "${LIGHTNING_USER_ID}:${LIGHTNING_API_KEY}" | base64)
 
-# List projects and extract the first project ID
+# Step 1: List your memberships to get teamspace (project) IDs
+curl -s -H "Authorization: Basic ${AUTH}" \
+  "https://lightning.ai/v1/memberships?filterByUserId=true" | jq '.memberships[] | {name, project_id}'
+
+# Step 2: Extract the first project ID
 PROJECT_ID=$(curl -s -H "Authorization: Basic ${AUTH}" \
-  https://lightning.ai/v1/projects | jq -r '.projects[0].id')
+  "https://lightning.ai/v1/memberships?filterByUserId=true" | jq -r '.memberships[0].project_id')
 ```
 
 ---
@@ -40,10 +44,15 @@ Returns all Studios in a project.
 
 **Query parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `name` | string | Filter by Studio name (exact match) |
-| `phase` | string | Filter by status phase |
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `userId` | string | **Yes** | Your user ID (required — without it the response is empty) |
+| `name` | string | No | Filter by Studio name (exact match) |
+| `clusterId` | string | No | Filter by cloud account / cluster |
+| `pageToken` | string | No | Pagination cursor |
+| `limit` | integer | No | Max results per page |
+| `activeOnly` | boolean | No | Return only running Studios |
+| `isFavorite` | boolean | No | Return only favorited Studios |
 
 **Response:**
 
@@ -82,8 +91,11 @@ Returns all Studios in a project.
 **Example:**
 
 ```bash
+# userId is required — your user ID is available from GET /v1/auth/user
+USER_ID="your-user-id"
+
 curl -s -H "Authorization: Basic ${AUTH}" \
-  "https://lightning.ai/v1/projects/${PROJECT_ID}/cloudspaces" | jq '.cloudspaces[].name'
+  "https://lightning.ai/v1/projects/${PROJECT_ID}/cloudspaces?userId=${USER_ID}" | jq '.cloudspaces[].name'
 ```
 
 ---
@@ -670,13 +682,19 @@ def get_headers():
     }
 
 def list_projects():
-    r = requests.get(f"{BASE_URL}/v1/projects", headers=get_headers())
-    return r.json()["projects"]
+    # No GET /v1/projects — use memberships endpoint instead
+    r = requests.get(
+        f"{BASE_URL}/v1/memberships?filterByUserId=true",
+        headers=get_headers()
+    )
+    return r.json()["memberships"]
 
-def list_studios(project_id):
+def list_studios(project_id, user_id):
+    # userId query param is required
     r = requests.get(
         f"{BASE_URL}/v1/projects/{project_id}/cloudspaces",
-        headers=get_headers()
+        params={"userId": user_id},
+        headers=get_headers(),
     )
     return r.json()["cloudspaces"]
 
@@ -704,10 +722,10 @@ def run_command(project_id, studio_id, command):
     return r.json()
 
 # Usage
-projects = list_projects()
-project_id = projects[0]["id"]
+memberships = list_projects()
+project_id = memberships[0]["project_id"]  # note: field is project_id, not id
 
-studios = list_studios(project_id)
+studios = list_studios(project_id, USER_ID)
 studio_id = studios[0]["id"]
 
 start_studio(project_id, studio_id, "cpu-4")

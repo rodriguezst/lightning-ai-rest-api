@@ -53,16 +53,30 @@ export LIGHTNING_API_KEY="your-api-key"
 
 ### 3. Make your first request
 
-List your teamspaces (projects):
+Complete working example — list teamspaces, then studios:
 
 ```bash
 USER_ID="your-user-id"
 API_KEY="your-api-key"
 AUTH=$(echo -n "${USER_ID}:${API_KEY}" | base64)
 
-curl -s "https://lightning.ai/v1/projects" \
+# Step 1: List your teamspaces
+# NOTE: There is NO GET /v1/projects — use /v1/memberships instead
+curl -s "https://lightning.ai/v1/memberships?filterByUserId=true" \
+  -H "Authorization: Basic ${AUTH}" | jq '.memberships[] | {name, project_id}'
+
+# Step 2: List studios in a teamspace
+# NOTE: userId query param is required
+PROJECT_ID="<project_id from step 1>"
+curl -s "https://lightning.ai/v1/projects/${PROJECT_ID}/cloudspaces?userId=${USER_ID}" \
+  -H "Authorization: Basic ${AUTH}" | jq '.cloudspaces[] | {id, name}'
+
+# Step 3: Start a studio
+STUDIO_ID="<studio id from step 2>"
+curl -s -X POST "https://lightning.ai/v1/projects/${PROJECT_ID}/cloudspaces/${STUDIO_ID}/start" \
   -H "Authorization: Basic ${AUTH}" \
-  -H "Content-Type: application/json" | jq .
+  -H "Content-Type: application/json" \
+  -d '{"compute_config": {"name": "cpu-4", "spot": false}}'
 ```
 
 ---
@@ -106,19 +120,24 @@ See the full [Authentication Guide](docs/authentication.md) for details.
 
 In the REST API, teamspaces are called **projects**. Every resource (Studio, Job, Storage) belongs to a project, identified by `projectId`.
 
+> **Important:** There is no `GET /v1/projects` endpoint. To list your teamspaces, use `GET /v1/memberships?filterByUserId=true`, which returns the projects you are a member of.
+
 ```bash
-# List all your projects
-curl -H "Authorization: Basic ${AUTH}" https://lightning.ai/v1/projects
+# List all your teamspaces/projects
+curl -H "Authorization: Basic ${AUTH}" \
+  "https://lightning.ai/v1/memberships?filterByUserId=true"
 ```
 
 ### Studios (CloudSpaces)
 
 Studios are interactive cloud development environments. In the API, they are called **cloudspaces**.
 
+> **Important:** Listing studios requires your `userId` as a query parameter.
+
 ```bash
-# List studios in a project
+# List studios in a project (userId is required)
 curl -H "Authorization: Basic ${AUTH}" \
-  https://lightning.ai/v1/projects/{projectId}/cloudspaces
+  "https://lightning.ai/v1/projects/{projectId}/cloudspaces?userId={userId}"
 ```
 
 ### Machine Types (Compute)
